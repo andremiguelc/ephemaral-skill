@@ -1,7 +1,7 @@
 ---
 name: ephemaral
 description: Verify that functions preserve business rules using formal verification. Use this skill whenever the user mentions invariants, verification, business rules, .aral files, writing constraints, or wants to check that a function can never produce invalid output. Also trigger when the user asks to "verify", "prove", or "check" a function against rules.
-license: Apache-2.0
+license: MIT
 compatibility: Requires ephemaral binary (Lean 4) and Z3 solver
 metadata:
   author: andremiguelc

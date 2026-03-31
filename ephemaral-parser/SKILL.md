@@ -1,7 +1,7 @@
 ---
 name: ephemaral-parser
 description: Parse source code functions into a format ephemaral can verify. Use this skill when the user wants to parse, extract, or convert a function for verification, or when preparing a function for ephemaral. Also trigger when dealing with parser errors (REWRITE, NOT VERIFIABLE), when assessing whether a function is verifiable, or when working with .aral-fn.json files.
-license: Apache-2.0
+license: MIT
 compatibility: Optional deterministic parser (e.g. ts-to-ephemaral for TypeScript)
 metadata:
   author: andremiguelc

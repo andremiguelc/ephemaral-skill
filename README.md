@@ -24,4 +24,4 @@ cp -r /tmp/ephemaral-skills/ephemaral-parser .claude/skills/ephemaral-parser
 
 ## License
 
-Apache-2.0
+MIT
