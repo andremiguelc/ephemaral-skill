@@ -48,7 +48,7 @@ Check if a parser is available for the source language. If not, skip to "When no
 Replace `{file}` in the `invoke` command with the source file path. Output goes to stdout as JSON:
 
 ```bash
-<invoke-command> path/to/function.ext > function.aral-fn.json
+<invoke-command> path/to/function.ext > .ephemaral/parsed/function.aral-fn.json
 ```
 
 ## One function per file
@@ -62,7 +62,7 @@ Extract the target function into a temporary file before parsing:
 3. Run the parser on the temp file
 4. The parsed `.aral-fn.json` is what ephemaral reads
 
-Use a consistent temp location (e.g., `.parsed/sources/` inside the parser directory). Name the temp file after the function.
+Use a consistent temp location (e.g., `.ephemaral/parsed/sources/`). Name the temp file after the function.
 
 ## Preparing real-world functions
 

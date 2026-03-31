@@ -66,7 +66,7 @@ The parameter name must also appear in `params`. The verifier matches the type n
 When a field may be absent, include it in `optionalFields`:
 
 ```json
-"optionalFields": ["discount", "shippingCost"]
+"optionalFields": ["fieldA", "fieldB"]
 ```
 
 For each optional field `f`, the pipeline:
@@ -94,11 +94,11 @@ Fields not in `assigns` are preserved by spread — the verifier knows the outpu
 The `sum` expression represents a function computing a total from a collection:
 
 ```json
-{"sum": {"collection": "lineItems", "body": {"field": {"name": "subtotal"}}}}
+{"sum": {"collection": "items", "body": {"field": {"name": "amount"}}}}
 ```
 
 - `collection` is a plain string — the collection field name on the input type
-- `body` is a per-item Expr — field refs inside are item-scoped (e.g., `subtotal`, `price`)
+- `body` is a per-item Expr — field refs inside are item-scoped (e.g., `amount`, `unitValue`)
 - Per-item body supports field refs and arithmetic (`price * quantity` ✓, conditionals ✗)
 
 For **pass-through collections** (function doesn't modify the collection, just reads from it or touches scalar fields), no special JSON is needed — just declare the scalar fields in `inputFields` and `assigns`. The pipeline detects collections from the `.aral` invariant and generates the appropriate SMT encoding.

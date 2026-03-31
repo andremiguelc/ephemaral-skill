@@ -19,27 +19,47 @@ The tool takes two inputs:
 
 The invariants are the primary artifact. Functions come and go; invariants persist.
 
+## The .ephemaral directory
+
+All verification artifacts live in a `.ephemaral/` directory at the root of the user's project:
+
+```
+.ephemaral/
+├── bin/
+│   └── ephemaral               # binary (gitignored)
+├── parsed/                     # parser output (gitignored, regenerable)
+│   └── <function>.aral-fn.json
+└── rules/                      # invariant files (checked in)
+    └── <type>.aral
+```
+
+- **bin/** — the ephemaral binary. Gitignore this.
+- **parsed/** — `.aral-fn.json` files produced by parsers. Gitignore this (regenerable from source).
+- **rules/** — `.aral` invariant files. Check these in — they're the business rules.
+
+Create it if it doesn't exist: `mkdir -p .ephemaral/{bin,parsed,rules}`
+
 ## Setup
 
-Before running verification, check that the tool is available:
+Before running verification, locate the ephemaral binary. Check in this order:
 
-1. **Check for ephemaral binary**: run `which ephemaral` or look for `proofs/.lake/build/bin/ephemaral` in a local clone
-2. **If not found**, the user needs to build from source:
-   ```bash
-   git clone https://github.com/andremiguelc/ephemaral.git
-   cd ephemaral/proofs
-   lake build ephemaral
-   ```
-   Prerequisites: [elan](https://github.com/leanprover/elan) (Lean 4 toolchain manager) and Z3 (`brew install z3` / `apt install z3` / [GitHub releases](https://github.com/Z3Prover/z3/releases))
-3. **Check for Z3**: run `which z3`. If not found, guide the user to install it.
+1. **Project-local**: `.ephemaral/bin/ephemaral` — preferred location
+2. **System PATH**: `which ephemaral`
+3. **Contributor build**: `proofs/.lake/build/bin/ephemaral` (only when working inside the ephemaral repo itself)
+
+**If not found**, the user can either:
+- **Download a pre-built binary** from [GitHub Releases](https://github.com/andremiguelc/ephemaral/releases/latest) into `.ephemaral/bin/` and `chmod +x` it
+- **Build from source**: `git clone https://github.com/andremiguelc/ephemaral.git && cd ephemaral/proofs && lake build ephemaral` (requires [elan](https://github.com/leanprover/elan) and Z3)
+
+**Check for Z3**: run `which z3`. If not found, guide the user to install it (`brew install z3` / `apt install z3` / [GitHub releases](https://github.com/Z3Prover/z3/releases)).
 
 ### Parsing TypeScript functions
 
 To produce `.aral-fn.json` from TypeScript source, the user needs the [ts-to-ephemaral](https://github.com/andremiguelc/ts-to-ephemaral) parser:
 ```bash
 git clone https://github.com/andremiguelc/ts-to-ephemaral.git
-cd ts-to-ephemaral && npm install
-npx tsx src/index.ts path/to/function.ts > function.aral-fn.json
+cd ts-to-ephemaral && pnpm install
+npx tsx src/index.ts path/to/function.ts > .ephemaral/parsed/function.aral-fn.json
 ```
 
 For other languages or when no parser is available, use the `ephemaral-parser` skill to hand-craft `.aral-fn.json` files directly.
@@ -48,10 +68,10 @@ For other languages or when no parser is available, use the `ephemaral-parser` s
 
 ```bash
 # Verify a function against invariants
-ephemaral <function.aral-fn.json> <rules.aral> [more-rules.aral ...]
+.ephemaral/bin/ephemaral .ephemaral/parsed/<function>.aral-fn.json .ephemaral/rules/<type>.aral [more-rules.aral ...]
 
 # Compile invariants to SMT-LIB (inspect what the compiler produces)
-ephemaral <inv.aral> [inv2.aral ...]
+.ephemaral/bin/ephemaral .ephemaral/rules/<type>.aral [more-rules.aral ...]
 ```
 
 Output: either `VERIFIED` (the function is safe for all valid inputs) or `COUNTEREXAMPLE FOUND` (with exact values and a diagnosis).
@@ -127,7 +147,7 @@ Field names in invariants must match field names on the type.
 
 ### File organization
 
-Organize `.aral` files by type or business concern. Name files to reflect what they protect. Multiple `.aral` files can coexist and be used independently with different functions.
+Place `.aral` files in `.ephemaral/rules/`. Organize by type or business concern. Name files to reflect what they protect. Multiple `.aral` files can coexist and be used independently with different functions.
 
 ### The Aral language
 

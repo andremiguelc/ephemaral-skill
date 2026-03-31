@@ -118,25 +118,25 @@ sum(<root>.<collection>, <per-item expression>)
 
 ```
 invariant total_matches_items:
-  order.total == sum(order.lineItems, subtotal)
+  root.total == sum(root.items, amount)
 
-invariant total_with_tax:
-  order.total == sum(order.lineItems, price * quantity) + order.tax
+invariant total_with_factor:
+  root.total == sum(root.items, unitValue * quantity) + root.offset
 ```
 
-`sum(order.lineItems, subtotal)` reads as: "sum the `subtotal` field across all `lineItems`." Field names after the comma are implicitly item-scoped — no arrows, lambdas, or path repetition needed.
+`sum(root.items, amount)` reads as: "sum the `amount` field across all `items`." Field names after the comma are implicitly item-scoped — no arrows, lambdas, or path repetition needed.
 
 Sum can appear inside larger arithmetic expressions — it returns a numeric value like any other expression.
 
 **Constraints:**
-- Per-item expression supports field references and arithmetic (`price * quantity` ✓, conditionals ✗)
-- All fields after the comma are item fields (no parent fields like `order.taxRate`)
+- Per-item expression supports field references and arithmetic (`unitValue * quantity` ✓, conditionals ✗)
+- All fields after the comma are item fields (no parent fields like `root.offset`)
 - No nested sums (`sum(items, sum(subitems, x))` ✗)
-- Collection must be a simple field reference (`order.lineItems` ✓, not `order.items.subitems`)
+- Collection must be a simple field reference (`root.items` ✓, not `root.nested.items`)
 
 **How it works with functions:** Two scenarios:
-- **Pass-through:** The function modifies scalar fields (like `total`) but doesn't touch the collection. The invariant catches broken scalar-collection relationships. The pipeline reuses input collection data for the output side.
-- **Compute from collection:** The function computes `total = items.reduce((acc, i) => acc + i.subtotal, 0)`. The parser emits a `sum` expression in the function JSON. The verifier checks that the computed value matches the invariant's sum.
+- **Pass-through:** The function modifies scalar fields but doesn't touch the collection. The invariant catches broken scalar-collection relationships. The pipeline reuses input collection data for the output side.
+- **Compute from collection:** The function computes a total by reducing over items. The parser emits a `sum` expression in the function JSON. The verifier checks that the computed value matches the invariant's sum.
 
 ## What the language cannot express
 
