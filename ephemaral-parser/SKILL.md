@@ -5,7 +5,7 @@ license: MIT
 compatibility: Optional deterministic parser (e.g. ts-to-ephemaral for TypeScript)
 metadata:
   author: andremiguelc
-  version: "0.1.0"
+  version: "2026-04-04"
   repository: "https://github.com/andremiguelc/ephemaral-skills"
 ---
 
@@ -168,7 +168,7 @@ The parser explains what to change. These are structural issues with how the fun
 
 These are fundamental limitations of the verification approach:
 
-- **Collection operations** — reduce, map, filter, aggregate, iterate
+- **Most collection operations** — map, filter, aggregate, iterate (note: `reduce` for sum patterns is supported; `.every()` for `each` invariants is not yet parsed — hand-craft the `each` BoolExpr in JSON when needed)
 - **Index operations** — bracket access, array indexing
 - **Boolean-returning functions** — function must return the same type as its input
 

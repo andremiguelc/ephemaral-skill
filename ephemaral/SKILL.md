@@ -5,7 +5,7 @@ license: MIT
 compatibility: Requires ephemaral binary (Lean 4) and Z3 solver
 metadata:
   author: andremiguelc
-  version: "0.1.0"
+  version: "2026-04-04"
   repository: "https://github.com/andremiguelc/ephemaral-skills"
 ---
 
@@ -89,7 +89,8 @@ The hardest part of verification isn't running the tool — it's knowing what ru
 Given a type with numeric fields, ask: what must be true about every instance of this type, in every context, at all times? Look for:
 - **Non-negativity bounds** — fields that represent things which can't go below zero
 - **Relationships between fields** — one field computed from others (a whole equals the sum of its parts)
-- **Collection totals** — a scalar field equals the sum of items in a collection (e.g., order total = sum of line item subtotals)
+- **Collection totals** — a scalar field equals the sum of items in a collection
+- **Per-item constraints** — every item in a collection satisfies a predicate (e.g., all quantities positive, all values within range)
 - **Ordering constraints** — one field must always be >= another
 - **Bounded ranges** — fields that must stay within a fixed range
 
