@@ -5,7 +5,7 @@ license: MIT
 compatibility: Requires ephemaral binary (Lean 4) and Z3 solver
 metadata:
   author: andremiguelc
-  version: "2026-04-04"
+  version: "2026-04-08"
   repository: "https://github.com/andremiguelc/ephemaral-skills"
 ---
 
@@ -27,9 +27,8 @@ All verification artifacts live in a `.ephemaral/` directory at the root of the 
 .ephemaral/
 ├── bin/
 │   └── ephemaral               # binary (gitignored)
-├── parsed/                     # parser output (gitignored, regenerable)
-│   └── <function>.aral-fn.json
-└── rules/                      # invariant files (checked in)
+├── parsed/                     # .aral-fn.json files (gitignored, regenerable)
+└── rules/                      # .aral invariant files (checked in, one per type)
     └── <type>.aral
 ```
 
@@ -53,22 +52,15 @@ Before running verification, locate the ephemaral binary. Check in this order:
 
 **Check for Z3**: run `which z3`. If not found, guide the user to install it (`brew install z3` / `apt install z3` / [GitHub releases](https://github.com/Z3Prover/z3/releases)).
 
-### Parsing TypeScript functions
+### Producing .aral-fn.json — ALWAYS use the parser
 
-To produce `.aral-fn.json` from TypeScript source, the user needs the [ts-to-ephemaral](https://github.com/andremiguelc/ts-to-ephemaral) parser:
-```bash
-git clone https://github.com/andremiguelc/ts-to-ephemaral.git
-cd ts-to-ephemaral && pnpm install
-npx tsx src/index.ts path/to/function.ts > .ephemaral/parsed/function.aral-fn.json
-```
-
-For other languages or when no parser is available, use the `ephemaral-parser` skill to hand-craft `.aral-fn.json` files directly.
+**Before running verification, invoke the `ephemaral-parser` skill.** The parser produces `.aral-fn.json` files from source code automatically. There is no hand-crafting JSON — ever. The `.aral-fn.json` is an internal format between the parser and verifier, not a user-facing artifact. If the parser can't extract an expression, that's a parser limitation to surface — not something to work around manually.
 
 ## Running verification
 
 ```bash
-# Verify a function against invariants
-.ephemaral/bin/ephemaral .ephemaral/parsed/<function>.aral-fn.json .ephemaral/rules/<type>.aral [more-rules.aral ...]
+# Verify a function against ALL invariants — glob everything
+.ephemaral/bin/ephemaral .ephemaral/parsed/<function>.aral-fn.json .ephemaral/rules/*.aral
 
 # Compile invariants to SMT-LIB (inspect what the compiler produces)
 .ephemaral/bin/ephemaral .ephemaral/rules/<type>.aral [more-rules.aral ...]
@@ -76,9 +68,10 @@ For other languages or when no parser is available, use the `ephemaral-parser` s
 
 Output: either `VERIFIED` (the function is safe for all valid inputs) or `COUNTEREXAMPLE FOUND` (with exact values and a diagnosis).
 
-**Pass all relevant `.aral` files in a single invocation.** The tool routes each file by type:
+**Always pass all `.aral` files** — use `.ephemaral/rules/*.aral`. The pipeline routes each file by type automatically. Irrelevant `.aral` files are silently ignored — no performance cost, no need to figure out which ones match:
 - Files matching the function's **input type** → applied as pre+post conditions (the function must preserve these)
 - Files matching a **typed parameter's type** → applied as preconditions on that parameter (assumed true on input)
+- Files matching **no type in the function** → silently skipped
 
 ## Surfacing invariants
 
@@ -168,11 +161,15 @@ The tool shows the exact values that cause a violation, then classifies the issu
 
 #### UNCONSTRAINED_PARAMETER
 
-A parameter has no rules limiting its values. The tool found extreme values that break output rules.
+A parameter has no rules limiting its values. The tool found extreme values that break output rules. What this means depends on the parameter's name:
 
-What to do depends on the parameter type:
-- **Primitive parameter**: add a guard inside the function (reject/clamp with an if/else), or accept that callers must validate. Primitive parameters live outside the invariant system — invariants bind to types, not function signatures.
-- **Typed parameter**: write an `.aral` file for the parameter's type and pass it alongside the input-type `.aral` file. The verifier applies these as preconditions, shifting the diagnosis to either VERIFIED or RULE_CONFLICT.
+**Real function parameter** (no `__ext_` prefix — name matches an actual function argument):
+A genuine trust boundary. The function accepts unvalidated input and the counterexample is actionable.
+- **Primitive parameter**: add a guard inside the function (reject/clamp), or accept that callers must validate.
+- **Typed parameter**: write an `.aral` file for the parameter's type and pass it to the verifier. It applies those rules as preconditions.
+
+**Parser extraction gap** (`__ext_` prefix — e.g., `__ext_functionName_0`):
+The parser couldn't trace this sub-expression. The counterexample is against the model's incompleteness, not the function's logic. The readable name after `__ext_` identifies what couldn't be resolved. Worth noting as a coverage boundary, but not a code bug. Real bugs surface as RULE_CONFLICT with fully extracted models.
 
 #### INVARIANT_GAP
 
