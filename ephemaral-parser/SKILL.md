@@ -35,7 +35,7 @@ When the result is VERIFIED, it's a mathematical proof via Z3. The only softness
 
 The parser prints a test-runner style report: per-field results with pass/gap markers, a summary line with counts, and the number of files scanned. When 0 sites are found, check the file count — a low number usually means the tsconfig doesn't cover the files you're targeting.
 
-**In monorepos:** Different tsconfig files see different files. Start with the tsconfig closest to the source files you want to analyze. If the report shows few files scanned and 0 sites, try a different tsconfig. There's no single root tsconfig that sees everything in a monorepo — you may need to run the parser multiple times with different tsconfig paths.
+**In monorepos:** Different tsconfig files see different files — there's no single root tsconfig that sees everything. For each `.aral` file, run the parser against every relevant tsconfig to get full coverage. Deduplicate the results by file+line (different tsconfigs may find the same site). If any tsconfig run shows 0 sites with a low file count, that tsconfig simply doesn't cover the target code — move on to the next one.
 
 ## `.aral` file organization
 
