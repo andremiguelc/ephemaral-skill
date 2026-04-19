@@ -123,7 +123,7 @@ Each counterexample points at the next thing. The tool drives the conversation.
 ```
 # Human-readable explanation of the rule
 invariant rule_name:
-  root.field >= 0
+  order.total >= 0
 ```
 
 - Lines starting with `#` are comments — for humans, ignored by the tool
@@ -131,9 +131,14 @@ invariant rule_name:
 - The expression is indented under the declaration
 - Separate invariants with blank lines
 
+The identifier before the dot (`order` above) names the type the invariant binds
+to. Use the lowercase of your actual type — `order` for `Order`, `payment` for
+`Payment`, and so on. It is a type binding, not a fixed keyword.
+
 ### How invariants bind to code
 
-The root prefix (e.g., `root` in `root.field`) is the type binding. It matches the function's input/output type case-insensitively. The tool checks:
+The identifier before the dot is the type binding — in `order.total`, `order`
+matches a type called `Order` case-insensitively. The tool checks:
 
 > If the input satisfies all invariants, does the output also satisfy them?
 
