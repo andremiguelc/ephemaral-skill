@@ -59,8 +59,8 @@ Before running verification, locate the ephemaral binary. Check in this order:
 ## Running verification
 
 ```bash
-# Verify a function against ALL invariants — glob everything
-.ephemaral/bin/ephemaral .ephemaral/parsed/<function>.aral-fn.json .ephemaral/rules/*.aral
+# Verify a parsed expression against ALL invariants — glob everything
+.ephemaral/bin/ephemaral .ephemaral/parsed/<aral-name>/<site>.aral-fn.json .ephemaral/rules/*.aral
 
 # Compile invariants to SMT-LIB (inspect what the compiler produces)
 .ephemaral/bin/ephemaral .ephemaral/rules/<type>.aral [more-rules.aral ...]

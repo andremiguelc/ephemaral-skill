@@ -7,7 +7,7 @@ The `.aral-fn.json` format describes a function's behavior for ephemaral verific
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
 | `name` | string | yes | Function name (for diagnostics) |
-| `inputType` | string | yes | The type being transformed (matched against `.aral` root prefixes) |
+| `inputType` | string | yes | The type being transformed (matched against `.aral` type prefixes) |
 | `inputFields` | string[] | yes | Fields on the type relevant to verification |
 | `params` | string[] | yes | Extra parameters beyond the input object (free variables) |
 | `assigns` | FieldAssign[] | yes | Which fields change and to what expression |
@@ -37,7 +37,7 @@ Expressions are recursive. Seven variants:
 
 ## BoolExpr (boolean expression tree)
 
-Used as conditions in `ite`. Four variants:
+Used as conditions in `ite`. Five variants:
 
 | Variant | JSON shape | Description |
 |---------|-----------|-------------|
@@ -45,6 +45,7 @@ Used as conditions in `ite`. Four variants:
 | Logic | `{"logic": {"op": "and", "left": <BoolExpr>, "right": <BoolExpr>}}` | Operators: `and`, `or` |
 | Negation | `{"not": <BoolExpr>}` | Boolean not |
 | Presence | `{"isPresent": {"name": "field"}}` | True if the optional field has a value. Supports qualifier: `{"isPresent": {"qualifier": "param", "name": "field"}}` |
+| Each | `{"each": {"collection": "items", "body": <BoolExpr>}}` | Universal quantifier — body must hold for every item. Body is a per-item BoolExpr; field refs inside are item-scoped. |
 
 ## How fields resolve
 
@@ -59,7 +60,7 @@ When a parameter has a non-primitive type, include it in `typedParams`:
 "typedParams": [{"name": "paramName", "type": "TypeName"}]
 ```
 
-The parameter name must also appear in `params`. The verifier matches the type name against `.aral` file root prefixes to apply invariants as preconditions on that parameter.
+The parameter name must also appear in `params`. The verifier matches the type name against `.aral` file type prefixes to apply invariants as preconditions on that parameter.
 
 ## optionalFields
 
@@ -99,6 +100,6 @@ The `sum` expression represents a function computing a total from a collection:
 
 - `collection` is a plain string — the collection field name on the input type
 - `body` is a per-item Expr — field refs inside are item-scoped (e.g., `amount`, `unitValue`)
-- Per-item body supports field refs and arithmetic (`price * quantity` ✓, conditionals ✗)
+- Per-item body supports field refs, arithmetic, and scalar `ite` conditionals — e.g. `{"sum": {"collection": "items", "body": {"ite": {"cond": <BoolExpr>, "then": <Expr>, "else": <Expr>}}}}` for `SUM(CASE WHEN ...)`-style aggregation. No nested `sum`/`each` inside the body, no parent field refs.
 
 For **pass-through collections** (function doesn't modify the collection, just reads from it or touches scalar fields), no special JSON is needed — just declare the scalar fields in `inputFields` and `assigns`. The pipeline detects collections from the `.aral` invariant and generates the appropriate SMT encoding.

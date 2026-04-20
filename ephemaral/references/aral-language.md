@@ -225,15 +225,15 @@ These are deliberate scope boundaries:
 
 These patterns look reasonable but will be silently skipped by the parser. Always check for `[skipped]` in output.
 
-**Using `root` as the type binding:**
+**Using a placeholder as the literal prefix:**
 
 ```
-# WRONG — root is a placeholder, not a literal identifier to copy into your .aral
+# WRONG — <type> is a placeholder, not a literal identifier to copy into your .aral
 invariant total_non_negative:
-  root.total >= 0
+  <type>.total >= 0
 ```
 
-Use the lowercase of your actual type name (`order.total`, `payment.amount`). The verifier accepts any identifier as the prefix, so `root.total` will parse, but it won't match your real type and the pipeline will warn.
+The language spec writes `<type>.total` to mean "whatever your type is called." Don't copy `<type>` literally — and don't copy `root` either (older spec token you may see in third-party examples). Use the lowercase of your actual type name (`order.total`, `payment.amount`). The verifier accepts any identifier as the prefix, so a placeholder will parse, but it won't match your real type and the pipeline will warn.
 
 **Referencing parent fields inside a collection body:**
 

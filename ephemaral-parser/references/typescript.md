@@ -14,7 +14,7 @@ Expression-level extraction for TypeScript codebases using the TS compiler API.
 npx tsx src/extract.ts .ephemaral/rules/<type>.aral --tsconfig path/to/tsconfig.json
 ```
 
-The parser reads the `.aral` file to identify the target type and fields, scans every source file in the TS program, and writes `.aral-fn.json` files to `.ephemaral/parsed/<type>/`.
+The parser reads the `.aral` file to identify the target type and fields, scans every source file in the TS program, and writes `.aral-fn.json` files to `.ephemaral/parsed/<aral-name>/<site>.aral-fn.json`, where `<aral-name>` is the base name of the input `.aral` file and `<site>` identifies the assignment location.
 
 ## What the parser needs
 
