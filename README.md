@@ -1,26 +1,23 @@
-# ephemaral-skills
+# ephemaral skill
 
-[Claude Code](https://claude.com/claude-code) skills for [ephemaral](https://github.com/andremiguelc/ephemaral) verification.
+[Claude Code](https://claude.com/claude-code) skill for [ephemaral](https://github.com/andremiguelc/ephemaral) verification.
 
-Two skills, installed separately:
+One skill:
 
-- **ephemaral** — run verification, write invariants, interpret results
-- **ephemaral-parser** — parse functions into Aral-fn JSON (with or without a deterministic parser)
+- **ephemaral** — hunt for counterexamples: write invariants, author the `.aral-fn.json` IR directly from the source, run the verifier, and interpret the result.
 
 ## Install
 
-Copy each skill folder into `.claude/skills/`:
+Copy the skill folder into `.claude/skills/`:
 
 ```bash
-git clone https://github.com/andremiguelc/ephemaral-skills.git /tmp/ephemaral-skills
-cp -r /tmp/ephemaral-skills/ephemaral .claude/skills/ephemaral
-cp -r /tmp/ephemaral-skills/ephemaral-parser .claude/skills/ephemaral-parser
+git clone https://github.com/andremiguelc/ephemaral-skill.git /tmp/ephemaral-skill
+cp -r /tmp/ephemaral-skill/ephemaral .claude/skills/ephemaral
 ```
 
 ## Prerequisites
 
 - [ephemaral](https://github.com/andremiguelc/ephemaral) binary (Lean 4 + Z3)
-- [ts-to-ephemaral](https://github.com/andremiguelc/ts-to-ephemaral) (optional, for TypeScript)
 
 ## License
 
